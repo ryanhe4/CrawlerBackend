@@ -19,7 +19,10 @@ app.use(ctx => {
 });
 
 var port = process.env.PORT || 4001;
+
+router.get('/', (ctx, next) => {
+  ctx.body = ' 루트페이지 입니다.';
+});
 app.listen(port, () => {
   console.log('Koa server is listening to port 4000');
 });
-
