@@ -18,7 +18,8 @@ app.use(ctx => {
   ctx.body = 'Hello koa!';
 });
 
-app.listen(4001, () => {
+var port = process.env.PORT || 4001;
+app.listen(port, () => {
   console.log('Koa server is listening to port 4000');
 });
 
