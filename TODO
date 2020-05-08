@@ -1,0 +1,18 @@
+LOCAL STORAGE 활용.
+
+1. URL 입력.
+
+2. Local Storage 확인
+=> 값이 없으면,
+    해당 게시판의 전체글을 txt 파일로 저장.
+    api => 0으로 호출시 , 전체글 내용을 리턴(json)
+=> 값이 있으면
+    해당 게시판의 해당번호 글 부터 txt 파일로 저장.
+    api => 0이 아닌 값으로 호출시, 그 값 이후의 글을 리턴(json)
+
+export BROWSER=vivaldi-stable
+
+
+시범 URL : http://www.k-apt.go.kr/bid/bidList.do?pageNo=1&type=4&bid_area=&bid_num=&bid_no=&d_time=1579487944743&search_bid_gb=bid_gb_1&bid_title=&apt_name=&search_date_gb=reg&date_start=2020-01-05&date_end=2021-01-05&date_area=4&bid_state=&code_auth=&code_way=&code_auth_sub=&code_classify_type_1=02&code_classify_type_2=05&code_classify_type_3=16
+
+게시글 URL: http://www.k-apt.go.kr/bid/bidDetail.do?pageNo=9&type=4&bid_area=&bid_num=20200110163129107&bid_no=&d_time=1588573772185&search_bid_gb=bid_gb_1&bid_title=&apt_name=&search_date_gb=reg&date_start=2020-01-05&date_end=2021-01-05&date_area=4&bid_state=&code_auth=&code_way=&code_auth_sub=&code_classify_type_1=02&code_classify_type_2=05&code_classify_type_3=16
