@@ -5,9 +5,8 @@ exports.crawling = async (ctx) => {
   // const dateString = '2020-05-05 00:08:00';
   const {body} = ctx.request;
 
-  const {uri, dateString} = body;
+  const {uri, dateString,downLoad} = body;
   //http://www.k-apt.go.kr/bid/bidList.do?type=4&bid_area=&bid_num=&bid_no=&d_time=1588587015395&search_bid_gb=bid_gb_1&bid_title=&apt_name=&search_date_gb=reg&date_start=2020-01-05&date_end=2021-01-05&date_area=4&bid_state=&code_auth=&code_way=&code_auth_sub=&code_classify_type_1=02&code_classify_type_2=05&code_classify_type_3=16
-
   try {
     const url = await axios.get(
         uri +
@@ -21,9 +20,12 @@ exports.crawling = async (ctx) => {
     const data = $('.paginate_complex a');
 
     const size = data.length + 1;
-    const linkobj = {};
+    const linkobj = {
+      check:false,
+    };
     let dateCheck = '';
 
+    //페이지 별로 호출
     for (let i = 0; i !== size + 1; ++i) {
       const body = await axios.get(
           uri +
@@ -43,19 +45,23 @@ exports.crawling = async (ctx) => {
         const no = $(element).children().eq(0).text();
         const date = $(element).children().eq(7).text();
 
-        // date를 비교해서  보내온 date 이후의 데이터 전달
+        // date를 비교해서 있다면 보내온 date 이후의 데이터 전달
         if (date > dateString || dateString === 0) {
-          const onclick = $(element).attr('onclick');
-          const strarr = onclick.split('\'');
+          if (downLoad === 0) {
+            linkobj['check'] = true;
+          } else {
+            const onclick = $(element).attr('onclick');
+            const strarr = onclick.split('\'');
 
-          console.log(date);
-          if (date > dateCheck) dateCheck = date;
+            console.log(date);
+            if (date > dateCheck) dateCheck = date;
 
-          const data = await getUrlData(strarr[1]);
-          linkobj[no] = {
-            data,
-            date,
-          };
+            const data = await getUrlData(strarr[1]);
+            linkobj[no] = {
+              data,
+              date,
+            };
+          }
         }
       });
     }
