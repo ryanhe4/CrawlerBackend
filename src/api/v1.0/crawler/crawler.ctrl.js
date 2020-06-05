@@ -1,15 +1,53 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
+const nodemailer = require('nodemailer');
+
+exports.sendemail = async (ctx) => {
+  const {body} = ctx.request;
+
+  const {emails} = body;
+
+  const arr_of_email = emails.split(',');
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: 'ryanhe4@gmail.com',
+      pass: 'dnlsxjcksdid12',
+    },
+  });
+
+  //setup eamil data with unicode symbols
+  const mailOptions = {
+    from: 'ryanhe4@gmail.com',
+    to: arr_of_email,
+    subject: '새로운 글 작성',
+    text: 'New Data is coming,please check and download data',
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log(`Message sent: ${info.response}`);
+    }
+    transporter.close();
+  });
+
+};
 
 exports.crawling = async (ctx) => {
   // const dateString = '2020-05-05 00:08:00';
   const {body} = ctx.request;
 
-  const {uri, dateString,downLoad} = body;
+  const {uri, dateString, downLoad} = body;
   //http://www.k-apt.go.kr/bid/bidList.do?type=4&bid_area=&bid_num=&bid_no=&d_time=1588587015395&search_bid_gb=bid_gb_1&bid_title=&apt_name=&search_date_gb=reg&date_start=2020-01-05&date_end=2021-01-05&date_area=4&bid_state=&code_auth=&code_way=&code_auth_sub=&code_classify_type_1=02&code_classify_type_2=05&code_classify_type_3=16
+
+  const cut_page_and = uri.replace(/'?pageNo=\d*&/, '');
+  const cut_page_no = cut_page_and.replace(/&pageNo=\d*/, '');
+
   try {
     const url = await axios.get(
-        uri +
+        cut_page_no +
         '&pageNo=1', {
           headers: {
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
@@ -21,14 +59,14 @@ exports.crawling = async (ctx) => {
 
     const size = data.length + 1;
     const linkobj = {
-      check:false,
+      check: false,
     };
     let dateCheck = '';
 
     //페이지 별로 호출
     for (let i = 0; i !== size + 1; ++i) {
       const body = await axios.get(
-          uri +
+          cut_page_no +
           '&pageNo=' + (i + 1), {
             headers: {
               'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
@@ -46,17 +84,19 @@ exports.crawling = async (ctx) => {
         const date = $(element).children().eq(7).text();
 
         // date를 비교해서 있다면 보내온 date 이후의 데이터 전달
-        if (date > dateString || dateString === 0) {
+        if (date > dateString.dateString|| date > dateString || dateString === 0) {
+
           if (downLoad === 0) {
             linkobj['check'] = true;
           } else {
             const onclick = $(element).attr('onclick');
+
+
             const strarr = onclick.split('\'');
 
-            console.log(date);
             if (date > dateCheck) dateCheck = date;
 
-            const data = await getUrlData(strarr[1]);
+            const data = await getUrlData('http://www.k-apt.go.kr/bid/bidDetail.do?type=4'+'&bid_num='+ strarr[1]);
             linkobj[no] = {
               data,
               date,
@@ -65,65 +105,25 @@ exports.crawling = async (ctx) => {
         }
       });
     }
-    linkobj['dateString'] = dateCheck;
+      linkobj['dateString'] = dateCheck;
     ctx.body = linkobj;
   } catch (e) {
     console.error(e);
   }
-
 };
 
 async function getUrlData(urlString) {
   try {
-    const body = await axios.get(
-        'http://www.k-apt.go.kr/bid/bidDetail.do?pageNo=9&type=4&bid_area=&bid_no=&d_time=1588573772185&search_bid_gb=bid_gb_1&bid_title=&apt_name=&search_date_gb=reg&date_start=2020-01-05&date_end=2021-01-05&date_area=4&bid_state=&code_auth=&code_way=&code_auth_sub=&code_classify_type_1=02&code_classify_type_2=05&code_classify_type_3=16' +
-        '&bid_num=' + urlString);
-
+    const body = await axios.get(urlString);
     const $ = cheerio.load(body.data);
-
     const data = $('.table_new tbody tr td');
-
-    // #subContents > section.subContent > div.contentBox > table:nth-child(1) > tbody > tr:nth-child(2) > td:nth-child(1)
     const obj = {};
+
     data.each((index, element) => {
 
       function replaceAll(str, searchStr, replaceStr) {
         return str.split(searchStr).join(replaceStr);
       }
-
-     /* if (index === 11) {
-        if ($(element).children('#emrg_bid_n').attr('checked') === 'checked') {
-          obj[index] = '일반';
-          return true;
-        } else {
-          obj[index] = '긴급';
-          return true;
-        }
-      } else if (index === 16) {
-
-        if ($(element).children('#isFiledDesP').attr('checked') === 'checked') {
-          obj[index] = '필수';
-          return true;
-        } else if ($(element).children('#isFiledDesY').attr('checked') ===
-            'checked') {
-          obj[index] = '임의';
-          return true;
-        } else {
-          obj[index] = '없음';
-          return true;
-        }
-
-      } else if (index === 20) {
-        if ($(element).children('#bid_req_docs_y').attr('checked') ===
-            'checked') {
-          obj[index] = '있음';
-          return true;
-        } else if ($(element).children('#bid_req_docs_n').attr('checked') ===
-            'checked') {
-          obj[index] = '없음';
-          return true;
-        }
-      }*/
 
       const string = $(element).text().trim();
 
@@ -137,5 +137,4 @@ async function getUrlData(urlString) {
   } catch (error) {
     console.error(error);
   }
-
 };
