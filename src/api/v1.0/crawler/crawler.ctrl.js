@@ -33,6 +33,8 @@ exports.sendemail = async (ctx) => {
     transporter.close();
   });
 
+  ctx.body= 200;
+
 };
 
 exports.crawling = async (ctx) => {
