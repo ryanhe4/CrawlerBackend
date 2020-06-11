@@ -19,3 +19,7 @@ export BROWSER=vivaldi-stable
 
 regex : 	str.replace(/pageNo=\d*[&]/,"");
 	        str.replace(/&pageNo=\d*/,"");
+
+
+	        [Mailing]
+	        data :
