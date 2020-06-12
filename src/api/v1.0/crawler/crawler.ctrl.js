@@ -8,9 +8,11 @@ exports.sendemail = async (ctx) => {
 
   const arr_of_email = emails.split(',');
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    service: 'Naver',
+    host: 'smtp.naver.com',
+    port: 587,
     auth: {
-      user: 'ryanhe4@gmail.com',
+      user: 'ryan4321@naver.com',
       pass: 'dnlsxjcksdid12',
     },
   });
