@@ -116,7 +116,7 @@ exports.crawling = async (ctx) => {
           }).then(value => new Promise(resolve => {
         setTimeout(() => {
           resolve(value);
-        }, 1000);
+        }, 500);
       }));
 
       $ = cheerio.load(body.data);
