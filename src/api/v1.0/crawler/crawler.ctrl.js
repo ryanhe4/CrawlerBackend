@@ -61,7 +61,7 @@ function sendemail(emails, data){
 
   //setup eamil data with unicode symbols
   const mailOptions = {
-    from: 'no-reply@gmail.com',
+    from: 'ryan4321@naver.com',
     to: arr_of_email,
     subject: '새로운 글 발견',
     html,
