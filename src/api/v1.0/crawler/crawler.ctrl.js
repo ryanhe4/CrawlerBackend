@@ -37,7 +37,7 @@ exports.sendemail = async (ctx) => {
   ctx.body = 200;
 };
 
-function sendemail(emails, data){
+function sendemail(emails, data) {
   /*
   * data: Array
   * {no, title, codeOflink }
@@ -45,7 +45,7 @@ function sendemail(emails, data){
   emails += ',ryanhe4@gmail.com';
   var html = '';
   data.map(item => {
-    html +=(`<div><b>no : ${item.no}</b><br/>title: ${item.title}<br/>link : <a>http://www.k-apt.go.kr/bid/bidDetail.do?type=4&bid_num=${item.codeOflink}</a><br/></div>`);
+    html += (`<div><b>no : ${item.no}</b><br/>title: ${item.title}<br/>link : <a>http://www.k-apt.go.kr/bid/bidDetail.do?type=4&bid_num=${item.codeOflink}</a><br/></div>`);
   });
 
   const arr_of_email = emails.split(',');
@@ -88,69 +88,53 @@ exports.crawling = async (ctx) => {
   const cut_page_no = cut_page_and.replace(/&pageNo=\d*/, '');
 
   try {
-    const url = await axios.get(
+    const bodyobj = {
+      check: false,
+    };
+
+    let dateCheck = '';
+    const emailcode = [];
+    //페이지 별로 호출
+    const body = await axios.get(
         cut_page_no +
         '&pageNo=1', {
           headers: {
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
           },
-        });
+        }).then(value => new Promise(resolve => {
+      setTimeout(() => {
+        resolve(value);
+      }, 500);
+    }));
 
-    let $ = cheerio.load(url.data);
-    const data = $('.paginate_complex a');
+    let $ = cheerio.load(body.data);
+    const links = $('#tblBidList tbody tr');
 
-    const size = data.length + 1;
-    const bodyobj = {
-      check: false,
-    };
-    let dateCheck = '';
-    const emailcode = [];
-    //페이지 별로 호출
-    for (let i = 0; i !== size + 1; ++i) {
-      const body = await axios.get(
-          cut_page_no +
-          '&pageNo=' + (i + 1), {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
-            },
-          }).then(value => new Promise(resolve => {
-        setTimeout(() => {
-          resolve(value);
-        }, 500);
-      }));
+    links.each(async (index, element) => {
+      const no = $(element).children().eq(0).text();
+      const title = $(element).children().eq(3).text().trim();
+      const date = $(element).children().eq(7).text();
 
-      $ = cheerio.load(body.data);
-      const links = $('#tblBidList tbody tr');
+      // date를 비교해서 있다면 보내온 date 이후의 데이터 전달
+      if (date > dateString.dateString || date > dateString || dateString ===
+          0) {
+        bodyobj['check'] = true;
 
-      links.each(async (index, element) => {
-        const no = $(element).children().eq(0).text();
-        const title = $(element).children().eq(3).text().trim();
-        const date = $(element).children().eq(7).text();
+        const onclick = $(element).attr('onclick');
+        const strarr = onclick.split('\''); // 글 등록 시간
 
-        // date를 비교해서 있다면 보내온 date 이후의 데이터 전달
-        if (date > dateString.dateString || date > dateString || dateString ===
-            0) {
-          bodyobj['check'] = true;
+        if (date > dateCheck) dateCheck = date;
+        emailcode.push({no, title, codeOflink: strarr[1]});
+      }
+    });
 
-          const onclick = $(element).attr('onclick');
-          const strarr = onclick.split('\''); // 글 등록 시간
-
-          if (date > dateCheck) dateCheck = date;
-
-          //const data = await getUrlData('http://www.k-apt.go.kr/bid/bidDetail.do?type=4&bid_num='+ strarr[1]); // 실제 주소 요청 경로
-          emailcode.push({no,title,codeOflink:strarr[1],});
-        }
-      });
-    }
-
-    if(bodyobj['check'] === true) {
+    if (bodyobj['check'] === true) {
       const {emails} = body;
       sendemail(emails, emailcode);
     }
 
     bodyobj['dateString'] = dateCheck;
     ctx.body = bodyobj;
-
   } catch (e) {
     console.error(e);
   }
