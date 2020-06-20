@@ -3,39 +3,39 @@ const cheerio = require('cheerio');
 const nodemailer = require('nodemailer');
 
 exports.sendemail = async (ctx) => {
-  const {body} = ctx.request;
-  const {emails} = body;
-
-  const arr_of_email = emails.split(',');
-  const transporter = nodemailer.createTransport({
-    service: 'Naver',
-    host: 'smtp.naver.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: 'ryan4321@naver.com',
-      pass: 'dnlsxjcksdid12',
-    },
-  });
-
-  //setup eamil data with unicode symbols
-  const mailOptions = {
-    from: 'no-reply@gmail.com',
-    to: arr_of_email,
-    subject: '새로운 글 발견',
-    text: 'New Data is coming,please check and download data',
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log(`Message sent: ${info.response}`);
-    }
-    transporter.close();
-  });
-
-  ctx.body = 200;
+  // const {body} = ctx.request;
+  // const {emails} = body;
+  //
+  // const arr_of_email = emails.split(',');
+  // const transporter = nodemailer.createTransport({
+  //   service: 'Naver',
+  //   host: 'smtp.naver.com',
+  //   port: 587,
+  //   secure: false,
+  //   auth: {
+  //     user: 'ryan4321@naver.com',
+  //     pass: 'dnlsxjcksdid12',
+  //   },
+  // });
+  //
+  // //setup eamil data with unicode symbols
+  // const mailOptions = {
+  //   from: 'no-reply@gmail.com',
+  //   to: arr_of_email,
+  //   subject: '새로운 글 발견',
+  //   text: 'New Data is coming,please check and download data',
+  // };
+  //
+  // transporter.sendMail(mailOptions, (error, info) => {
+  //   if (error) {
+  //     console.log(error);
+  //   } else {
+  //     console.log(`Message sent: ${info.response}`);
+  //   }
+  //   transporter.close();
+  // });
+  //
+  // ctx.body = 200;
 };
 
 function sendemail(emails, data) {
@@ -43,21 +43,24 @@ function sendemail(emails, data) {
   * data: Array
   * {no, title, codeOflink }
   */
-  const arr_of_email = emails + ',ryanhe4@gmail.com';
+  const emailstring = emails + ',ryanhe4@gmail.com';
+  console.log(emailstring);
   var html = '';
   data.map(item => {
     html += (`<div><b>no : ${item.no}</b><br/>title: ${item.title}<br/>link : <a>http://www.k-apt.go.kr/bid/bidDetail.do?type=4&bid_num=${item.codeOflink}</a><br/></div>`);
   });
 
-  //const arr_of_email = emails.split(',');
+  const arr_of_email = emailstring.split(',');
   const transporter = nodemailer.createTransport({
-    service: 'Naver',
+    service: 'naver',
     host: 'smtp.naver.com',
     port: 587,
     auth: {
       user: 'ryan4321@naver.com',
       pass: 'dnlsxjcksdid12',
     },
+    maxConnections: 5,
+    maxMessages: 10,
   });
 
   //setup eamil data with unicode symbols
@@ -82,7 +85,7 @@ exports.crawling = async (ctx) => {
   // const dateString = '2020-05-05 00:08:00';
   const {body} = ctx.request;
 
-  const {uri, dateString} = body;
+  const {uri, dateString,emails} = body;
   //http://www.k-apt.go.kr/bid/bidList.do?type=4&bid_area=&bid_num=&bid_no=&d_time=1588587015395&search_bid_gb=bid_gb_1&bid_title=&apt_name=&search_date_gb=reg&date_start=2020-01-05&date_end=2021-01-05&date_area=4&bid_state=&code_auth=&code_way=&code_auth_sub=&code_classify_type_1=02&code_classify_type_2=05&code_classify_type_3=16
 
   const cut_page_and = uri.replace(/'?pageNo=\d*&/, '');
@@ -130,7 +133,6 @@ exports.crawling = async (ctx) => {
     });
 
     if (bodyobj['check'] === true) {
-      const {emails} = body;
       sendemail(emails, emailcode);
     }
 
