@@ -57,10 +57,8 @@ function sendemail(emails, data) {
     port: 587,
     auth: {
       user: 'ryan4321@naver.com',
-      pass: 'dnlsxjcksdid12',
+      pass: 'dnlsxjcksdid12!',
     },
-    maxConnections: 5,
-    maxMessages: 10,
   });
 
   //setup eamil data with unicode symbols
