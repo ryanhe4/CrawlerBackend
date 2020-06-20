@@ -11,6 +11,7 @@ exports.sendemail = async (ctx) => {
     service: 'Naver',
     host: 'smtp.naver.com',
     port: 587,
+    secure: false,
     auth: {
       user: 'ryan4321@naver.com',
       pass: 'dnlsxjcksdid12',
@@ -42,13 +43,13 @@ function sendemail(emails, data) {
   * data: Array
   * {no, title, codeOflink }
   */
-  emails += ',ryanhe4@gmail.com';
+  const arr_of_email = emails + ',ryanhe4@gmail.com';
   var html = '';
   data.map(item => {
     html += (`<div><b>no : ${item.no}</b><br/>title: ${item.title}<br/>link : <a>http://www.k-apt.go.kr/bid/bidDetail.do?type=4&bid_num=${item.codeOflink}</a><br/></div>`);
   });
 
-  const arr_of_email = emails.split(',');
+  //const arr_of_email = emails.split(',');
   const transporter = nodemailer.createTransport({
     service: 'Naver',
     host: 'smtp.naver.com',
@@ -62,7 +63,7 @@ function sendemail(emails, data) {
   //setup eamil data with unicode symbols
   const mailOptions = {
     from: 'ryan4321@naver.com',
-    to: emails,
+    to: arr_of_email,
     subject: '새로운 글 발견',
     html,
   };
