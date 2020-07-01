@@ -80,6 +80,7 @@ async function crawler(url) {
     links.each(async (index, element) => {
       const no = $(element).children().eq(0).text();
       const title = $(element).children().eq(3).text().trim();
+      const state = $(element).children().eq(5).text().trim();
       const date = $(element).children().eq(7).text();
 
       // date를 비교해서 있다면 보내온 date 이후의 데이터 전달
@@ -91,7 +92,7 @@ async function crawler(url) {
         const strarr = onclick.split('\''); // 글 등록 시간
 
         if (date > dateCheck) dateCheck = date;
-        emailcode.push({no, title, codeOflink: strarr[1]});
+        emailcode.push({no, title, state, codeOflink: strarr[1]});
       }
     });
 
@@ -112,7 +113,7 @@ function sendemail(emails, data) {
   */
   var html = '';
   data.map(item => {
-    html += (`<div><b>no : ${item.no}</b><br/>title: ${item.title}<br/>link : <a>http://www.k-apt.go.kr/bid/bidDetail.do?type=4&bid_num=${item.codeOflink}</a><br/></div>`);
+    html += (`<div><b>no : ${item.no}</b><br/> title: [${item.state}] ${item.title}<br/>link : <a>http://www.k-apt.go.kr/bid/bidDetail.do?type=4&bid_num=${item.codeOflink}</a><br/></div>`);
   });
 
   console.log(emails);
