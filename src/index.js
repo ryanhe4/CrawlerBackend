@@ -38,7 +38,7 @@ app.listen(port, () => {
 });
 
 //10초마다 반복
-const j = schedule.scheduleJob('*/30 * * * * * ', async () => {
+const j = schedule.scheduleJob('*/10 * * * * * ', async () => {
   console.log(new Date(), '10분마다 실행');
   //링크리스트에
   const urls = await Url.findAll();
