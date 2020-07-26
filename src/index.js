@@ -34,11 +34,11 @@ router.get('/', (ctx, next) => {
   ctx.body = ' 루트페이지 입니다.';
 });
 app.listen(port, () => {
-  console.log('Koa server is listening to port 4000');
+  console.log('Koa server is listening to port 4001');
 });
 
 //10초마다 반복
-const j = schedule.scheduleJob('*/10 * * * * * ', async () => {
+const j = schedule.scheduleJob('*/5 * * * * * ', async () => {
   console.log(new Date(), '10분마다 실행');
   //링크리스트에
   const urls = await Url.findAll();
@@ -124,7 +124,7 @@ function sendemail(emails, data) {
     port: 587,
     auth: {
       user: 'ryan4321@naver.com',
-      pass: 'dnlsxjcksdid12!',
+      pass: process.env.MAILPASS,
     },
   });
 
