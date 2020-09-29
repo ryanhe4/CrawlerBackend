@@ -34,11 +34,11 @@ router.get('/', (ctx, next) => {
   ctx.body = ' 루트페이지 입니다.';
 });
 app.listen(port, () => {
-  console.log('Koa server is listening to port 4001');
+  console.log('Koa server is listening to port 4000');
 });
 
 //10초마다 반복
-const j = schedule.scheduleJob('*/10 * * * * * ', async () => {
+const j = schedule.scheduleJob('*/20 * * * * * ', async () => {
   console.log(new Date(), '10분마다 실행');
   //링크리스트에
   const urls = await Url.findAll();
@@ -48,8 +48,6 @@ const j = schedule.scheduleJob('*/10 * * * * * ', async () => {
       await crawler(url);
     }
   }
-
-  //sendemail(emails) //이메일 전송
 });
 
 async function crawler(url) {
@@ -98,6 +96,7 @@ async function crawler(url) {
 
     if (check_new_data === true) {
       sendemail(emails, emailcode);
+
       //dateCheck => updateDate 변경
       const current = await Url.updateByUrl(link, dateCheck);
     }
