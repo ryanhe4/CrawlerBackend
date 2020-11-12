@@ -39,15 +39,9 @@ app.listen(port, () => {
     console.log('Koa server is listening to port 4000');
 });
 
-const tor = tor_axios.torSetup({
-    ip: 'localhost',
-    port: 9050,
-})
-
 //10초마다 반복
 const j = schedule.scheduleJob('*/30 * * * * 1-5 ', async () => {
     console.log(new Date().toTimeString(), '-반복실행');
-    await tor_test();
     //링크리스트에
     const urls = await Url.findAll();
     for (let url of urls) {
@@ -60,14 +54,20 @@ const j = schedule.scheduleJob('*/30 * * * * 1-5 ', async () => {
 async function crawler(url) {
     const {link, emails, updateDate} = url;
 
+    tor_test();
+
+    const tor = tor_axios.torSetup({
+        ip: 'localhost',
+        port: 9050,
+    })
+
     let check_new_data;
     try {
         check_new_data = false;
-
         let dateCheck = '0';
         const emailcode = [];
         //페이지 별로 호출
-        const body = await axios.get(
+        const body = await tor.get(
             link +
             '&pageNo=1', {
                 headers: {
@@ -158,6 +158,11 @@ async function sendemail(emails, data) {
 }
 
 async function tor_test() {
+    const tor = tor_axios.torSetup({
+        ip: 'localhost',
+        port: 9050,
+    })
+
     let response = await tor.get('http://api.ipify.org');
     const ip = response.data;
     console.log(ip)
