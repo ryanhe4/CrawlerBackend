@@ -6,6 +6,7 @@ const schedule = require('node-schedule');
 const nodemailer = require('nodemailer');
 const axios = require('axios');
 const cheerio = require('cheerio');
+const tor_axios = require('tor-axios');
 
 const api = require('./api');
 const db = require('./db');
@@ -38,9 +39,15 @@ app.listen(port, () => {
     console.log('Koa server is listening to port 4000');
 });
 
+const tor = tor_axios.torSetup({
+    ip: 'localhost',
+    port: 9050,
+})
+
 //10초마다 반복
-const j = schedule.scheduleJob('*/20 * * * * * ', async () => {
-    console.log(new Date(), '-반복실행');
+const j = schedule.scheduleJob('*/30 * * * * 1-5 ', async () => {
+    console.log(new Date().toTimeString(), '-반복실행');
+    await tor_test();
     //링크리스트에
     const urls = await Url.findAll();
     for (let url of urls) {
@@ -122,13 +129,13 @@ async function sendemail(emails, data) {
         port: 587,
         auth: {
             user: 'ryan4321@naver.com',
-            pass: process.env.MAILPASS //'*',
+            pass: process.env.MAILPASS
         },
     });
 
     //setup eamil data with unicode symbols
     const mailOptions = {
-        from: 'ryan4321@naver.com',
+        from: '알림메일 <ryan4321@naver.com>',
         to: emails,
         subject: '새로운 글 발견',
         html,
@@ -148,4 +155,10 @@ async function sendemail(emails, data) {
             }
         })
     });
+}
+
+async function tor_test() {
+    let response = await tor.get('http://api.ipify.org');
+    const ip = response.data;
+    console.log(ip)
 }

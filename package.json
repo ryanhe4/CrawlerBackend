@@ -14,7 +14,8 @@
     "node-schedule": "^1.3.2",
     "nodemailer": "^6.4.8",
     "nodemon": "^2.0.3",
-    "selenium-webdriver": "^4.0.0-alpha.7"
+    "selenium-webdriver": "^4.0.0-alpha.7",
+    "tor-axios": "^1.0.9"
   },
   "devDependencies": {
     "eslint": "^6.8.0"
